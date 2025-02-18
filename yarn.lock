@@ -2455,7 +2455,7 @@ unplugin-vue-components@^0.27.2:
     mlly "^1.7.3"
     unplugin "^1.16.0"
 
-unplugin-vue-router@^0.10.0:
+unplugin-vue-router@^0.10.9:
   version "0.10.9"
   resolved "https://registry.npmjs.org/unplugin-vue-router/-/unplugin-vue-router-0.10.9.tgz"
   integrity sha512-DXmC0GMcROOnCmN56GRvi1bkkG1BnVs4xJqNvucBUeZkmB245URvtxOfbo3H6q4SOUQQbLPYWd6InzvjRh363A==

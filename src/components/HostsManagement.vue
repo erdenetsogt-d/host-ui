@@ -1,6 +1,8 @@
 <!-- HostsManagement.vue -->
 <template>
-  <div>
+  <div class="host-management-page">
+    <h1>Host Management</h1>
+    <p>This is the Host Management page.</p>
     <v-card>
       <v-card-title>
         <v-text-field

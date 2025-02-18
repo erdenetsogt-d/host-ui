@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div class="history-page">
+    <h1>History</h1>
+    <p>This is the History page.</p>
     <v-data-table
       :headers="headers"
       :items="hostStore.hostHistory"

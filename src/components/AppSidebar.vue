@@ -1,4 +1,3 @@
-<!-- AppSidebar.vue -->
 <template>
   <v-navigation-drawer
     v-model="drawer"
@@ -13,7 +12,7 @@
         :title="item.title"
         :prepend-icon="item.icon"
         :active="currentView === item.value"
-        @click="handleClick(item.value)"
+        @click="handleClick(item)"
       >
       </v-list-item>
     </v-list>
@@ -22,6 +21,7 @@
 
 <script>
 import { defineComponent, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'AppSidebar',
@@ -40,31 +40,38 @@ export default defineComponent({
   emits: ['update:modelValue', 'update:currentView'],
 
   setup(props, { emit }) {
+    const router = useRouter()
+
     const drawer = computed({
       get: () => props.modelValue,
       set: (value) => emit('update:modelValue', value)
     })
 
+    // Added a route property to each menu item.
     const menuItems = [
       {
         title: 'Dashboard',
         value: 'dashboard',
-        icon: 'mdi-view-dashboard'
+        icon: 'mdi-view-dashboard',
+        route: '/' // Update as needed
       },
       {
         title: 'Hosts Management',
         value: 'hosts',
-        icon: 'mdi-server'
+        icon: 'mdi-server',
+        route: '/host-mgmt'
       },
       {
         title: 'History',
         value: 'history',
-        icon: 'mdi-history'
+        icon: 'mdi-history',
+        route: '/history'
       }
     ]
 
-    const handleClick = (value) => {
-      emit('update:currentView', value)
+    const handleClick = (item) => {
+      emit('update:currentView', item.value)
+      router.push(item.route)
     }
 
     return {

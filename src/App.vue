@@ -20,7 +20,7 @@
       <AppSidebar 
         v-model="drawer" 
         :current-view="currentView"
-        @update:currentView="currentView = $event"
+        @update:currentView="updateCurrentView"
       />
       <AppHeader 
         :drawer="drawer" 
@@ -45,7 +45,6 @@
             :hosts="hosts"
             :loading="loading"
             :check-methods="checkMethods"
-
             :search="search"
             @edit-host="editHost"
             @delete-host="deleteHost"
@@ -82,9 +81,9 @@
 </template>
 
 <script>
-// Order of imports matters to prevent initialization issues
-import { defineComponent } from 'vue'
-import { ref, computed, onMounted, watch } from 'vue'
+import { defineComponent, ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
 import { useHostStore } from '@/stores/hostStore'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -117,6 +116,7 @@ export default defineComponent({
     const authStore = useAuthStore()
     const loading = ref(false)
     const drawer = ref(false)
+    // Default view is dashboard; we will sync this with the route.
     const currentView = ref('dashboard')
     const dialog = ref(false)
     const deleteDialog = ref(false)
@@ -139,6 +139,25 @@ export default defineComponent({
       isPending: false,
       device_type_name: null,
     })
+
+    // Get the current route
+    const route = useRoute()
+
+    // Watch the route and update currentView accordingly.
+    // (Assuming your route names are "Dashboard", "History", and "HostManagement")
+    watch(
+      route,
+      (newRoute) => {
+        if (newRoute.name === 'History') {
+          currentView.value = 'history'
+        } else if (newRoute.name === 'HostManagement') {
+          currentView.value = 'hosts'
+        } else {
+          currentView.value = 'dashboard'
+        }
+      },
+      { immediate: true }
+    )
 
     onMounted(async () => {
       loading.value = true
@@ -172,12 +191,15 @@ export default defineComponent({
       }
     }
 
-    watch(() => authStore.isAuthenticated, async (newValue) => {
-      console.log('Auth status changed:', newValue)
-      if (newValue) {
-        await fetchData()
+    watch(
+      () => authStore.isAuthenticated,
+      async (newValue) => {
+        console.log('Auth status changed:', newValue)
+        if (newValue) {
+          await fetchData()
+        }
       }
-    })
+    )
 
     const handleLogout = () => {
       authStore.logout()
@@ -240,6 +262,12 @@ export default defineComponent({
       dialog.value = true
     }
 
+    // Function to update currentView from the sidebar if needed.
+    // (Typically, your sidebar click will trigger a router.push so this may not be necessary.)
+    const updateCurrentView = (newView) => {
+      currentView.value = newView
+    }
+
     return {
       drawer,
       currentView,
@@ -265,7 +293,8 @@ export default defineComponent({
       confirmDelete,
       saveHost,
       closeDialog,
-      openAddHostDialog
+      openAddHostDialog,
+      updateCurrentView
     }
   }
 })
