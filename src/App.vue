@@ -35,6 +35,7 @@
             :hosts="hosts"
             :loading="loading"
             :check-methods="checkMethods"
+            :check-types="checkTypes"
             :search="search"
             @edit-host="editHost"
             @delete-host="deleteHost"
@@ -116,7 +117,6 @@ export default defineComponent({
     const authStore = useAuthStore()
     const loading = ref(false)
     const drawer = ref(false)
-    // Default view is dashboard; we will sync this with the route.
     const currentView = ref('dashboard')
     const dialog = ref(false)
     const deleteDialog = ref(false)
@@ -162,7 +162,6 @@ export default defineComponent({
     onMounted(async () => {
       loading.value = true
       try {
-        console.log('App mounted, checking auth...')
         await authStore.checkAuth()
         console.log('Auth status:', authStore.isAuthenticated)
         
@@ -180,10 +179,8 @@ export default defineComponent({
     const fetchData = async () => {
       try {
         await Promise.all([
-          hostStore.fetchHosts(),
-          hostStore.fetchHistory(),
-          hostStore.fetchCheckMethods(),
           hostStore.fetchCheckAlerts(),
+          hostStore.fetchCheckMethods(),
           hostStore.fetchCheckTypes()
         ])
       } catch (error) {

@@ -1,7 +1,10 @@
-// src/components/StatusCards.vue
 <template>
   <v-row>
-    <v-col cols="12" md="3" v-for="(stat, index) in statistics" :key="index">
+    <v-col 
+      v-for="(stat, index) in statistics" 
+      :key="index" 
+      :cols="dynamicColWidth"
+    >
       <v-card class="mx-auto" max-width="400" :color="stat.color" dark>
         <v-card-text>
           <div class="text-h4 text-center">{{ stat.value }}</div>
@@ -18,39 +21,39 @@ import { computed } from 'vue'
 export default {
   name: 'StatusCards',
   props: {
-    hosts: {
+    checkTypes: {
       type: Array,
       required: true,
       default: () => []
     }
   },
   setup(props) {
-    // Add this to debug
+    const statistics = computed(() => {
+      const grouped = props.checkTypes.reduce((acc, item) => {
+        if (!acc[item.device_type]) {
+          acc[item.device_type] = { count: 0, color: 'primary' }
+        }
+        acc[item.device_type].count++
+        return acc
+      }, {})
 
-    const statistics = computed(() => [
-      {
-        title: 'Total Hosts',
-        value: props.hosts.length || 0,
-        color: 'primary'
-      },
-      {
-        title: 'Down Hosts',
-        value: props.hosts.filter(h => h.alert_status).length || 0,
-        color: 'error'
-      },
-      {
-        title: 'Up Hosts',
-        value: props.hosts.filter(h => !h.alert_status && !h.is_pending).length || 0,
-        color: 'success'
-      },
-      {
-        title: 'Pending Hosts',
-        value: props.hosts.filter(h => h.is_pending && !h.alert_status).length || 0,
-        color: 'warning'
-      }
-    ])
+      return Object.keys(grouped).map(type => ({
+        title: type,
+        value: grouped[type].count,
+        color: grouped[type].color
+      }))
+    })
 
-    return { statistics }
+    // Dynamic column width
+    const dynamicColWidth = computed(() => {
+      const totalCards = statistics.value.length
+      if (totalCards <= 2) return 6 // Two cards per row
+      if (totalCards <= 3) return 4 // Three cards per row
+      if (totalCards <= 4) return 3 // Four cards per row
+      return 2 // More cards, reduce column width
+    })
+
+    return { statistics, dynamicColWidth }
   }
 }
 </script>

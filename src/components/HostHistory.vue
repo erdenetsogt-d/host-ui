@@ -2,9 +2,19 @@
   <div class="history-page">
     <h1>History</h1>
     <p>This is the History page.</p>
+
+    <!-- Search Input -->
+    <v-text-field
+      v-model="search"
+      label="Search"
+      class="mb-4"
+      prepend-inner-icon="mdi-magnify"
+      clearable
+    ></v-text-field>
+
     <v-data-table
       :headers="headers"
-      :items="hostStore.hostHistory"
+      :items="filteredHistory"
       :loading="hostStore.historyLoading"
       class="elevation-1"
       :items-per-page="pageSize"
@@ -57,7 +67,7 @@
 
 <script>
 import { useHostStore } from '@/stores/hostStore'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 export default {
   name: 'HostHistory',
@@ -65,8 +75,9 @@ export default {
   setup() {
     const hostStore = useHostStore()
     const currentPage = ref(1)
-    const pageSize = ref(10) // Default to 10 rows
-    
+    const pageSize = ref(10)
+    const search = ref('')
+
     const pageSizeOptions = [
       { title: '10', value: 10 },
       { title: '50', value: 50 },
@@ -75,11 +86,22 @@ export default {
     ]
 
     const headers = [
-      { text: 'Host Name', value: 'host_name' },
-      { text: 'Status', value: 'status' },
-      { text: 'Checked At', value: 'checked_at' },
-      { text: 'Alert Status', value: 'alert_status' }
+      { title: 'Host Name', key: 'host_name' },
+      { title: 'Status', key: 'status' },
+      { title: 'Detected', key: 'checked_at' },
+      { title: 'Device type', key: 'dev_type' },
+      { title: 'Alert Status', key: 'alert_status' }
     ]
+
+    // Filtered history based on search query
+    const filteredHistory = computed(() => {
+      if (!search.value) {
+        return hostStore.hostHistory
+      }
+      return hostStore.hostHistory.filter(item =>
+        item.host_name.toLowerCase().includes(search.value.toLowerCase())
+      )
+    })
 
     const handlePageChange = async (page) => {
       await hostStore.fetchHistory(page, pageSize.value)
@@ -104,6 +126,8 @@ export default {
       currentPage,
       pageSize,
       pageSizeOptions,
+      search,
+      filteredHistory,
       handlePageChange,
       handlePageSizeChange,
       formatDate
