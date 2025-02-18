@@ -44,6 +44,8 @@
             v-else-if="currentView === 'hosts'"
             :hosts="hosts"
             :loading="loading"
+            :check-methods="checkMethods"
+
             :search="search"
             @edit-host="editHost"
             @delete-host="deleteHost"

@@ -72,7 +72,7 @@
                 required
               ></v-text-field>
             </v-col>
-            <v-col cols="12">
+            <v-col cols="12" v-if="showExpectedResponse">
               <v-text-field
                 v-model="formData.expected_response"
                 label="Expected Response"
@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, watch, computed } from 'vue'
 
 export default defineComponent({
   name: 'HostDialog',
@@ -149,6 +149,11 @@ export default defineComponent({
     const dialog = ref(props.modelValue)
     const formData = ref({ ...props.editedItem })
 
+    const showExpectedResponse = computed(() => {
+      const selectedMethod = props.checkMethods.find(method => method.id === formData.value.methodId)
+      return selectedMethod?.method === 'HTTP_GET' || selectedMethod?.method === 'HTTP_POST'
+    })
+
     watch(() => props.modelValue, (val) => {
       dialog.value = val
     })
@@ -169,7 +174,8 @@ export default defineComponent({
     return {
       dialog,
       formData,
-      save
+      save,
+      showExpectedResponse
     }
   }
 })
